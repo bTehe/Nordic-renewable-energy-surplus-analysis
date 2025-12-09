@@ -3,8 +3,9 @@ Generate key visuals for Nordic surplus analysis.
 
 Outputs saved to analysis_outputs/:
 - price_vs_surplus_scatter.png
-- calendar_heatmap_FI_2024.png
-- price_path_FI_top_event.png
+- calendar_heatmap_<ZONE>_<YEAR>.png  (per-zone calendars)
+- calendar_heatmap_multizone_<YEAR>.png  (multi-zone calendar)
+- price_path_top_event_<ZONE>.png  (per-zone event study)
 """
 from __future__ import annotations
 
@@ -84,6 +85,31 @@ def calendar_heatmap(panel: pd.DataFrame, zone: str, year: int) -> None:
     plt.close()
 
 
+def calendar_heatmap_multizone(panel: pd.DataFrame, year: int) -> None:
+    """Multi-zone 'calendar' heatmap: rows = zones, columns = day-of-year, values = surplus hours per day."""
+    sub = panel[panel["datetime_utc"].dt.year == year]
+    if sub.empty:
+        return
+    sub = sub.copy()
+    sub["doy"] = sub["datetime_utc"].dt.dayofyear
+    daily = sub.groupby(["zone", "doy"])["surplus_flag"].sum().reset_index()
+    pivot = daily.pivot(index="zone", columns="doy", values="surplus_flag").fillna(0)
+
+    plt.figure(figsize=(16, 6))
+    sns.heatmap(
+        pivot,
+        cmap="YlGnBu",
+        cbar_kws={"label": "Surplus hours per day"},
+        linewidths=0.0,
+    )
+    plt.title(f"Multi-zone surplus calendar – {year}")
+    plt.xlabel("Day of year")
+    plt.ylabel("Zone")
+    plt.tight_layout()
+    plt.savefig(OUTPUT_DIR / f"calendar_heatmap_multizone_{year}.png", dpi=250, bbox_inches="tight")
+    plt.close()
+
+
 def price_path_top_event(panel: pd.DataFrame, events: pd.DataFrame, zone: str, window: int = 12) -> None:
     zone_events = events[events["zone"] == zone]
     if zone_events.empty:
@@ -123,9 +149,22 @@ def price_path_top_event(panel: pd.DataFrame, events: pd.DataFrame, zone: str, w
 def main() -> None:
     panel = load_panel()
     events = pd.read_parquet(EVENTS_PATH)
+
+    # Global scatter
     scatter_price_surplus(panel)
-    calendar_heatmap(panel, zone="FI", year=2024)
-    price_path_top_event(panel, events, zone="FI", window=12)
+
+    # Per-zone calendars and price paths
+    zones = sorted(panel["zone"].unique())
+    years = sorted(panel["datetime_utc"].dt.year.unique())
+    for zone in zones:
+        for year in years:
+            calendar_heatmap(panel, zone=zone, year=year)
+        price_path_top_event(panel, events, zone=zone, window=12)
+
+    # Multi-zone calendar per year
+    for year in years:
+        calendar_heatmap_multizone(panel, year=year)
+
     print(f"Plots saved to {OUTPUT_DIR}")
 
 
