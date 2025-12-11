@@ -1,12 +1,3 @@
-"""
-Generate key visuals for Nordic surplus analysis.
-
-Outputs saved to analysis_outputs/:
-- price_vs_surplus_scatter.png
-- calendar_heatmap_<ZONE>_<YEAR>.png  (per-zone calendars)
-- calendar_heatmap_multizone_<YEAR>.png  (multi-zone calendar)
-- price_path_top_event_<ZONE>.png  (per-zone event study)
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -21,7 +12,6 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 MASTER_PATH = Path("processed") / "master_panel.parquet"
 EVENTS_PATH = Path("processed") / "surplus_events.parquet"
 
-# Use a clean readable theme
 sns.set_theme(style="whitegrid", context="talk", palette="tab10")
 plt.rcParams.update({"axes.spines.right": True, "axes.spines.top": False})
 
@@ -66,7 +56,6 @@ def calendar_heatmap(panel: pd.DataFrame, zone: str, year: int) -> None:
     daily["month"] = daily["date"].dt.month
     daily["day"] = daily["date"].dt.day
     month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    # pivot by month x day for calendar-like view
     pivot = daily.pivot(index="month", columns="day", values="surplus_flag")
     plt.figure(figsize=(14, 4.5))
     sns.heatmap(
@@ -150,10 +139,8 @@ def main() -> None:
     panel = load_panel()
     events = pd.read_parquet(EVENTS_PATH)
 
-    # Global scatter
     scatter_price_surplus(panel)
 
-    # Per-zone calendars and price paths
     zones = sorted(panel["zone"].unique())
     years = sorted(panel["datetime_utc"].dt.year.unique())
     for zone in zones:
@@ -161,7 +148,6 @@ def main() -> None:
             calendar_heatmap(panel, zone=zone, year=year)
         price_path_top_event(panel, events, zone=zone, window=12)
 
-    # Multi-zone calendar per year
     for year in years:
         calendar_heatmap_multizone(panel, year=year)
 

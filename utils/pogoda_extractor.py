@@ -2,16 +2,10 @@ import xarray as xr
 import pandas as pd
 from pathlib import Path
 
-# -----------------------------
-# 0. Налаштування шляхів і років
-# -----------------------------
-base_dir = Path("Weather data")  # папка, в якій лежать підпапки 2023, 2024
+base_dir = Path("Weather data") 
 years = [2023, 2024]
 months = range(1, 13)
 
-# -----------------------------
-# 1. Точки для bidding zones
-# -----------------------------
 bidding_zone_points = {
     "DK1": (55.6, 9.2),
     "DK2": (55.7, 12.5),
@@ -35,24 +29,18 @@ for year in years:
         grib_path = year_dir / grib_name
 
         if not grib_path.exists():
-            print(f"[{year}-{month:02d}] Файл не знайдено: {grib_path}")
+            print(f"[{year}-{month:02d}] File not found: {grib_path}")
             continue
 
-        print(f"\n=== Обробка {grib_path} ===")
+        print(f"\nProcessing {grib_path}")
 
-        # -----------------------------
-        # 2. Відкрити GRIB
-        # -----------------------------
         ds = xr.open_dataset(
             grib_path,
             engine="cfgrib",
-            backend_kwargs={"indexpath": ""}  # без створення *.idx файлів
+            backend_kwargs={"indexpath": ""}
         )
         print("Dataset loaded")
 
-        # -----------------------------
-        # 3. Витягнути часові ряди по зонах
-        # -----------------------------
         zone_dataframes = []
 
         for zone, (lat, lon) in bidding_zone_points.items():
@@ -62,9 +50,6 @@ for year in years:
             df_zone["zone"] = zone
             zone_dataframes.append(df_zone)
 
-        # -----------------------------
-        # 4. Об’єднати зони в один DataFrame
-        # -----------------------------
         df_all = pd.concat(zone_dataframes, ignore_index=True)
 
         cols_to_keep = ["valid_time", "zone"]
@@ -74,17 +59,13 @@ for year in years:
 
         df_all = df_all[cols_to_keep]
 
-        # Температура з Кельвінів в Цельсії
         if "t2m" in df_all.columns:
             df_all["t2m"] = df_all["t2m"] - 273.15
 
-        # -----------------------------
-        # 5. Зберегти у CSV в тій самій папці
-        # -----------------------------
         csv_name = f"bidding_zone_weather_{year}_{month:02d}.csv"
         csv_path = year_dir / csv_name
 
         df_all.to_csv(csv_path, index=False)
-        print(f"Збережено: {csv_path}")
+        print(f"Saved: {csv_path}")
         print(df_all.head())
         print(df_all.info())

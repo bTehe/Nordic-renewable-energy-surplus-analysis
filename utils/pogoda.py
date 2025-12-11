@@ -13,7 +13,6 @@ request = {
         "mean_sea_level_pressure",
         "total_precipitation",
 
-        # Optional:
         "100m_u_component_of_wind",
         "100m_v_component_of_wind",
         "surface_solar_radiation_downwards"

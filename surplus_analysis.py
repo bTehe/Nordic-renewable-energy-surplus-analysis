@@ -1,12 +1,3 @@
-"""
-Lightweight analysis on the processed master panel to cover the project steps:
-- surplus vs non-surplus contrasts
-- correlations with key drivers
-- logistic regression for surplus probability
-- ranked surplus events
-
-Outputs are written to analysis_outputs/.
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -28,7 +19,6 @@ EVENTS_PATH = Path("processed") / "surplus_events.parquet"
 
 def load_master() -> pd.DataFrame:
     panel = pd.read_parquet(MASTER_PATH)
-    # ensure correct dtypes
     panel["surplus_flag"] = panel["surplus_flag"].astype("Int64")
     return panel
 
