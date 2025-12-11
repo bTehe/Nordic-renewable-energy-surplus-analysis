@@ -1,0 +1,14 @@
+pandas
+numpy
+requests
+python-dotenv
+xarray
+cfgrib
+cdsapi
+matplotlib
+seaborn
+scikit-learn
+statsmodels
+pyarrow
+nbformat
+jupyter

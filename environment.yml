@@ -1,0 +1,20 @@
+name: nordic-surplus
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - requests
+  - python-dotenv
+  - xarray
+  - cfgrib
+  - eccodes
+  - cdsapi
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - statsmodels
+  - pyarrow
+  - nbformat
+  - jupyter
