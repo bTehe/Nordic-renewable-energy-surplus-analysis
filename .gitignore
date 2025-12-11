@@ -1,6 +1,7 @@
 /Dataset
-/__pycache__
 /Raw Data
 /Raw data
 /Weather data 
 /.env
+/utils
+/__pycache__
