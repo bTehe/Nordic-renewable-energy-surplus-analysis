@@ -4,7 +4,7 @@
 Build an hourly panel for Nordic bidding zones (DK1–DK2, FI, NO1–NO5, SE1–SE4) for 2023–2024, compute surplus flags, and summarise surplus events.
 
 ## Environment and credentials
-- Create `.env/.env` and set `FINGRID_API_KEY=<your_key>` (get it from the Fingrid Open Data portal).
+- Create `.env` and set `FINGRID_API_KEY=<your_key>` (get it from the Fingrid Open Data portal).
 - Install dependencies via pip:
   - `pip install -r requirements.txt`
 - Or create/activate the conda env:
